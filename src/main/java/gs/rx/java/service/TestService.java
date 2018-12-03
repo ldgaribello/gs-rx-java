@@ -7,9 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Service
 public class TestService {
 
@@ -25,18 +22,20 @@ public class TestService {
         });
     }
 
-    public Observable<List<String>> findOrders(Integer customerId) {
-        return Observable.fromCallable(() -> {
-            logger.info("Finding orders for customer with id {}", customerId);
-            Thread.sleep(8000);
-            logger.info("Orders for customer with id {} founded", customerId);
+    public Observable<String> findOrders(Integer customerId) {
+        logger.info("Finding orders for customer with id {}", customerId);
 
-            return Arrays.asList("Order 1", "Order 2", "Order 3");
-        });
+        return Observable
+                .fromArray("Order 1", "Order 2", "Order 3")
+                .map(order -> {
+                    Thread.sleep(2000);
+                    logger.info("Order: {} found", order);
+                    return order;
+                });
     }
 
     public Single<Summary> findSummary(String name, Integer customerId) {
-        return Single.zip(greeting(name), Single.fromObservable(findOrders(customerId)),
+        return Single.zip(greeting(name), findOrders(customerId).toList(),
                 (greeting, orders) -> {
                     logger.info("Creating summary for {}", name);
 

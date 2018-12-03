@@ -58,6 +58,7 @@ public class TestController {
         final DeferredResult<List<String>> result = new DeferredResult<>();
         testService.findOrders(customerId)
                 .subscribeOn(Schedulers.from(executor))
+                .toList()
                 .subscribe(
                         result::setResult,
                         error -> logger.error(error.getMessage())
